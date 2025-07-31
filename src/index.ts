@@ -3,20 +3,25 @@ import { config } from 'dotenv'
 import MainAgent from './agents.js'
 import { run, setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@openai/agents'
 import OpenAI from 'openai'
-import { Runner } from '@openai/agents';
+import { Runner } from '@openai/agents'
+import { Langfuse } from "langfuse"
+import { observeOpenAI } from "langfuse";
+ 
+const langfuse = new Langfuse();
 
 config({ path: '.env' })
 
 console.log(process.env['OPENAI_API_BASE_URL'])
 
-const openai = new OpenAI({
+const openai_base = new OpenAI({
   apiKey: process.env['OPENAI_API_KEY'],
   baseURL: process.env['OPENAI_API_BASE_URL'] ?? "https://generativelanguage.googleapis.com/v1beta/openai/"
 })
 const runner = new Runner({ model: 'gemini-2.5-pro' })
-setDefaultOpenAIClient(openai)
 setOpenAIAPI('chat_completions')
 setTracingDisabled(true)
+const openai = observeOpenAI(openai_base)
+setDefaultOpenAIClient(openai)
 
 const app = express()
 const port = process.env['PORT']

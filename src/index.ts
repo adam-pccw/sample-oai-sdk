@@ -17,7 +17,7 @@ const openai_base = new OpenAI({
   apiKey: process.env['OPENAI_API_KEY'],
   baseURL: process.env['OPENAI_API_BASE_URL'] ?? "https://generativelanguage.googleapis.com/v1beta/openai/"
 })
-const runner = new Runner({ model: 'gemini-2.5-pro' })
+const runner = new Runner({ model: process.env['OPENAI_API_MODEL'] ?? 'gemini-2.5-pro' })
 setOpenAIAPI('chat_completions')
 setTracingDisabled(true)
 const openai = observeOpenAI(openai_base)

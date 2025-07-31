@@ -1,37 +1,44 @@
 import express from 'express'
-import { config } from 'dotenv'
+import { Runner, AgentInputItem } from '@openai/agents'
+
 import MainAgent from './agents.js'
-import { run, setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@openai/agents'
-import OpenAI from 'openai'
-import { Runner } from '@openai/agents'
-import { Langfuse } from "langfuse"
-import { observeOpenAI } from "langfuse";
- 
-const langfuse = new Langfuse();
+import { getConfig, loadConfig } from './config.js'
+import { pullSession, storeSession } from './session.js'
 
-config({ path: '.env' })
+// config
+await loadConfig()
+const config = await getConfig()
+const port = config.port
+const model = config.model
 
-console.log(process.env['OPENAI_API_BASE_URL'])
-
-const openai_base = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'],
-  baseURL: process.env['OPENAI_API_BASE_URL'] ?? "https://generativelanguage.googleapis.com/v1beta/openai/"
-})
-const runner = new Runner({ model: process.env['OPENAI_API_MODEL'] ?? 'gemini-2.5-pro' })
-setOpenAIAPI('chat_completions')
-setTracingDisabled(true)
-const openai = observeOpenAI(openai_base)
-setDefaultOpenAIClient(openai)
-
+// app initialization
 const app = express()
-const port = process.env['PORT']
+app.use(express.json());
+const runner = new Runner({ model })
 
-app.get('/', async (req, res) => {
-  
-  const result = await runner.run(MainAgent, 'What is the weather?');
+// endpoint declarations
+app.get('/createSession', async (req: express.Request, res: express.Response) => {
+  const sessionId = crypto.randomUUID()
+  console.log(`\n\STARTING SESSION: ${sessionId}\n\n`)
+  await storeSession(sessionId, [])
+  res.send(sessionId)
+})
+
+app.post('/', async (req: express.Request, res: express.Response) => {
+  const r = req.body;
+  const userMessage = r.message
+  const sessionId = r.sessionId;
+  const thread = await pullSession(sessionId) 
+  const result = await runner.run(
+    MainAgent,
+    thread.concat({ role: 'user', content: userMessage }),
+  );
+  const newThread = result.history;
+  await storeSession(sessionId, newThread)
   res.send(result.finalOutput)
 })
 
+// start server
 app.listen(port, () => {
   console.log(`Open AI Agentic SDK Sample running on port ${port}`)
 })

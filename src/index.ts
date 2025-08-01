@@ -2,6 +2,7 @@ import express from 'express'
 import { getConfig, loadConfig } from './config.js'
 import { pullSession, storeSession } from './session.js'
 import { simpleRun } from './workflows.js'
+import bodyParser from 'body-parser'
 
 // config
 await loadConfig()
@@ -11,8 +12,9 @@ const model = config.model
 
 // app initialization
 const app = express()
-app.use(express.json());
-
+app.use(bodyParser.text());
+app.use(bodyParser.json({limit: '2mb'}));
+app.use(bodyParser.urlencoded({extended: true}));
 
 // endpoint declarations
 app.get('/createSession', async (req: express.Request, res: express.Response) => {
@@ -20,6 +22,7 @@ app.get('/createSession', async (req: express.Request, res: express.Response) =>
   console.log(`\n\STARTING SESSION: ${sessionId}\n\n`)
   await storeSession(sessionId, [])
   res.send(sessionId)
+  res.end()
 })
 
 app.post('/', async (req: express.Request, res: express.Response) => {
@@ -32,7 +35,8 @@ app.post('/', async (req: express.Request, res: express.Response) => {
   );
   const newThread = result.history;
   await storeSession(sessionId, newThread)
-  res.send(result.finalOutput)
+  res.send(result.finalOutput.toString())
+  res.end()
 })
 
 // start server

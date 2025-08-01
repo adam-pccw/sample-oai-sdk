@@ -6,31 +6,50 @@ import OpenAI from 'openai'
 import { Runner } from '@openai/agents'
 import { Langfuse, observeOpenAI } from "langfuse"
  
+
+import { getConfig, loadConfig } from './config.js'
+import { pullSession, storeSession } from './session.js'
+import { simpleRun } from './workflows.js'
+import bodyParser from 'body-parser'
+
 const langfuse = new Langfuse();
 
-config({ path: '.env' })
+// config
+await loadConfig()
+const config = await getConfig()
+const port = config.port
+const model = config.model
 
-console.log(process.env['OPENAI_API_BASE_URL'])
-
-const openai_base = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'],
-  baseURL: process.env['OPENAI_API_BASE_URL'] ?? "https://generativelanguage.googleapis.com/v1beta/openai/"
-})
-const runner = new Runner({ model: process.env['OPENAI_API_MODEL'] ?? 'gemini-2.5-pro' })
-setOpenAIAPI('chat_completions')
-setTracingDisabled(true)
-const openai = observeOpenAI(openai_base)
-setDefaultOpenAIClient(openai)
-
+// app initialization
 const app = express()
-const port = process.env['PORT']
+app.use(bodyParser.text());
+app.use(bodyParser.json({limit: '2mb'}));
+app.use(bodyParser.urlencoded({extended: true}));
 
-app.get('/', async (req, res) => {
-  
-  const result = await runner.run(MainAgent, 'What is the weather?');
-  res.send(result.finalOutput)
+// endpoint declarations
+app.get('/createSession', async (req: express.Request, res: express.Response) => {
+  const sessionId = crypto.randomUUID()
+  console.log(`\n\STARTING SESSION: ${sessionId}\n\n`)
+  await storeSession(sessionId, [])
+  res.send(sessionId)
+  res.end()
 })
 
+app.post('/', async (req: express.Request, res: express.Response) => {
+  const r = req.body;
+  const userMessage = r.message
+  const sessionId = r.sessionId;
+  const thread = await pullSession(sessionId) 
+  const result = await simpleRun(
+    thread.concat({ role: 'user', content: userMessage })
+  );
+  const newThread = result.history;
+  await storeSession(sessionId, newThread)
+  res.send(result.finalOutput.toString())
+  res.end()
+})
+
+// start server
 app.listen(port, () => {
   console.log(`Open AI Agentic SDK Sample running on port ${port}`)
 })

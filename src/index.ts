@@ -4,8 +4,7 @@ import MainAgent from './agents.js'
 import { run, setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@openai/agents'
 import OpenAI from 'openai'
 import { Runner } from '@openai/agents'
-import { Langfuse } from "langfuse"
-import { observeOpenAI } from "langfuse";
+import { Langfuse, observeOpenAI } from "langfuse"
  
 const langfuse = new Langfuse();
 

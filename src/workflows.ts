@@ -14,4 +14,12 @@ const simpleRun = async (thread: AgentInputItem[]) => {
     );
 }
 
-export { simpleRun }
+const memoryRun = async (thread: AgentInputItem[]) => {
+  
+    return await runner.run(
+        MainAgent,
+        thread,
+    );
+}
+
+export { simpleRun, memoryRun }

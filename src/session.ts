@@ -1,6 +1,6 @@
 import { AgentInputItem } from '@openai/agents'
 
-let sessionStore: Record<string, AgentInputItem[]> = {}
+const sessionStore: Record<string, AgentInputItem[]> = {}
 
 const pullSession = async (sessionId: string) => {
     return sessionStore[sessionId]

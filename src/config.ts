@@ -27,14 +27,14 @@ const loadConfig = async () => {
             provider: 'gemini',
             config: {
                 apiKey: process.env.GOOGLE_API_KEY || '',
-                model: 'text-embedding-004',
+                model: 'gemini-embedding-001',
             },
         },
         vectorStore: {
             provider: 'memory',
             config: {
                 collectionName: 'memories',
-                dimension: 1536,
+                dimension: 3072,
             },
         },
         llm: {

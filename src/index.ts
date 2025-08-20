@@ -1,10 +1,5 @@
 import express from 'express'
-import { config } from 'dotenv'
-import MainAgent from './agents.js'
-import { run, setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@openai/agents'
-import OpenAI from 'openai'
-import { Runner } from '@openai/agents'
-import { Langfuse, observeOpenAI } from "langfuse"
+import { Langfuse } from "langfuse"
  
 
 import { getConfig, loadConfig } from './config.js'
@@ -12,13 +7,12 @@ import { pullSession, storeSession } from './session.js'
 import { simpleRun } from './workflows.js'
 import bodyParser from 'body-parser'
 
-const langfuse = new Langfuse();
+new Langfuse();
 
 // config
 await loadConfig()
 const config = await getConfig()
 const port = config.port
-const model = config.model
 
 // app initialization
 const app = express()
@@ -29,7 +23,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 // endpoint declarations
 app.get('/createSession', async (req: express.Request, res: express.Response) => {
   const sessionId = crypto.randomUUID()
-  console.log(`\n\STARTING SESSION: ${sessionId}\n\n`)
+  console.log(`\nSTARTING SESSION: ${sessionId}\n\n`)
   await storeSession(sessionId, [])
   res.send(sessionId)
   res.end()

@@ -1,8 +1,18 @@
 import express from 'express'
+import { config } from 'dotenv'
+import MainAgent from './agents.js'
+import { run, setDefaultOpenAIClient, setOpenAIAPI, setTracingDisabled } from '@openai/agents'
+import OpenAI from 'openai'
+import { Runner } from '@openai/agents'
+import { Langfuse, observeOpenAI } from "langfuse"
+ 
+
 import { getConfig, loadConfig } from './config.js'
 import { pullSession, storeSession } from './session.js'
 import { simpleRun } from './workflows.js'
 import bodyParser from 'body-parser'
+
+const langfuse = new Langfuse();
 
 // config
 await loadConfig()

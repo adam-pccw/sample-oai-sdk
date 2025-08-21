@@ -3,7 +3,7 @@ import http from "http"
 
 class Client{
     url: string = "" 
-    timeout: number = 5000
+    timeout: number = 30000
     agent: http.Agent = new http.Agent({
         keepAlive: false,
         maxSockets: 10,

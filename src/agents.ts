@@ -21,6 +21,10 @@ export default new Agent({
     'When users ask questions: ' +
     '- If they want to store information, use add_to_memory' +
     '- If they are searching for specific information, use search_memory' +
-    '- If they want to see everything stored, use get_all_memory',
+    '- If they want to see everything stored, use get_all_memory' +
+    'Please do not store any information that might identify someone such as: ' +
+    '- name' +
+    '- address ' +
+    '- date of birth',
   tools: [weatherTool, getAllMemoryTool, addToMemoryTool, searchMemoryTool],
 });

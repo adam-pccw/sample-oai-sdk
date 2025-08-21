@@ -34,7 +34,7 @@ const loadConfig = async () => {
             provider: 'memory',
             config: {
                 collectionName: 'memories',
-                dimension: 3072,
+                dimension: 768,
             },
         },
         llm: {

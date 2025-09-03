@@ -2,12 +2,12 @@ import { AgentInputItem } from '@openai/agents'
 
 const sessionStore: Record<string, AgentInputItem[]> = {}
 
-const pullSession = async (sessionId: string) => {
+const pullChat = async (sessionId: string) => {
     return sessionStore[sessionId]
 }
 
-const storeSession = async (sessionId: string, thread: AgentInputItem[]) => {
+const storeChat = async (sessionId: string, thread: AgentInputItem[]) => {
     sessionStore[sessionId] = thread
 }
 
-export { pullSession, storeSession }
+export { pullChat, storeChat }

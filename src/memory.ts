@@ -24,6 +24,7 @@ const searchMemoryTool = tool({
   parameters: z.object({ userId: z.string(), query: z.string() }),
   async execute({ userId, query }) {
     console.log("Search memory called")
+    console.log(query)
     return await search_memory(userId, query)
   },
 });    

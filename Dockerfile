@@ -10,6 +10,9 @@ COPY . .
 
 RUN npm run build
 
+
+
+
 FROM node:16-alpine AS production
 
 WORKDIR /app

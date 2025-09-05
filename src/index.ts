@@ -2,7 +2,7 @@ import express from 'express'
 import { Langfuse } from "langfuse"
 import cors from "cors"
 import { getConfig, loadConfig } from './config.js'
-import { pullChat, storeChat } from './session.js'
+import { listChats, pullChat, storeChat, deleteChat } from './chatStore.js'
 import { simpleRun } from './workflows.js'
 import bodyParser from 'body-parser'
 
@@ -45,11 +45,26 @@ app.post('/', async (req: express.Request, res: express.Response) => {
 
 app.get('/chatMessages/:chatId', async (req: express.Request, res: express.Response) => {
   const chatId = req.params.chatId;
-  console.log(`\nSTARTING CHAT: ${chatId}\n\n`)
+  console.log(`\nGETTING CHAT: ${chatId}\n\n`)
   const thread = await pullChat(chatId)
   res.send({chat: thread})
   res.end()
 })
+
+app.get('/listChats', async (req: express.Request, res: express.Response) => {
+  const chats = await listChats()
+  res.send({chats})
+  res.end()
+})
+
+app.delete('/chat/:chatId', async (req: express.Request, res: express.Response) => {
+  const chatId = req.params.chatId;
+  console.log(`\nDELETING CHAT: ${chatId}\n\n`)
+  await deleteChat(chatId)
+  res.send({})
+  res.end()
+})
+
 
 // start server
 try {

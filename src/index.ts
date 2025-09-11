@@ -5,6 +5,10 @@ import { getConfig, loadConfig } from './config.js'
 import { listChats, pullChat, storeChat, deleteChat } from './chatStore.js'
 import { simpleRun } from './workflows.js'
 import bodyParser from 'body-parser'
+import path from 'node:path'
+import { fileToBase64 } from './utils.js'
+import { UserMessageItem } from '@openai/agents'
+import { fileURLToPath } from 'url';
 
 new Langfuse();
 
@@ -34,9 +38,9 @@ app.post('/', async (req: express.Request, res: express.Response) => {
   const userMessage = r.message
   const chatId = r.chatId;
   const thread = await pullChat(chatId) 
-  const result = await simpleRun(
-    thread.concat({ role: 'user', content: userMessage })
-  );
+  const t = thread.concat({ role: 'user', content: userMessage })
+  console.log(t)
+  const result = await simpleRun(t);
   const newThread = result.history;
   await storeChat(chatId, newThread)
   res.send(result.finalOutput.toString())
@@ -65,6 +69,50 @@ app.delete('/chat/:chatId', async (req: express.Request, res: express.Response) 
   res.end()
 })
 
+app.post('/file/upload/:chatId', async (req: express.Request, res: express.Response) => {
+  const chatId = req.params.chatId;
+  const thread = await pullChat(chatId) 
+
+  const filename = "invoice2.jpg"
+
+  const __filename = fileURLToPath(import.meta.url) 
+  const __dirname = path.dirname(__filename) + '/../' // this should point to the project root
+
+  const filePath = path.join(
+    __dirname,
+    'uploads/' + filename,
+  )
+  const b64File = fileToBase64(filePath)
+
+  /*
+  const message: UserMessageItem = 
+     {
+      role: 'user',
+      content: "Here is a base64-encoded PDF file: " + b64File
+    }
+  */
+
+  const message: UserMessageItem = {
+      role: 'user',
+      content: [{
+        type: "input_image",
+        image: "data:image/png;base64," + b64File
+      },
+      {
+        type: "input_text",
+        text: "Here is an image, please summarize the contents"
+    }],
+  }
+
+  const result = await simpleRun(
+    thread.concat(message)
+  );
+  const newThread = result.history;
+  await storeChat(chatId, newThread)
+  console.log(result.finalOutput.toString())
+  res.send(result.finalOutput.toString())
+  res.end()
+})
 
 // start server
 try {

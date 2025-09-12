@@ -1,21 +1,32 @@
 import { AgentInputItem } from '@openai/agents'
+import prisma from '../prisma'
 
-const sessionStore: Record<string, AgentInputItem[]> = {}
+const pullChat = async (sessionId: string): Promise<AgentInputItem[]> => 
+    JSON.parse((await prisma.session.findUnique({
+        where: { id: sessionId },
+        select: { content: true }
+    }))?.content ?? '[]') ?? []
 
-const pullChat = async (sessionId: string) => {
-    return sessionStore[sessionId]
-}
+const storeChat = async (sessionId: string, thread: AgentInputItem[]) =>
+    await prisma.session.upsert({
+        where: { id: sessionId },
+        update: { content: JSON.stringify(thread) },
+        create: { id: sessionId, content: JSON.stringify(thread) }
+    })
 
-const storeChat = async (sessionId: string, thread: AgentInputItem[]) => {
-    sessionStore[sessionId] = thread
-}
+const listChats = async () =>
+    (await prisma.session.findMany({
+        select: { id: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+    }))
+    .map(s => ({
+        id: s.id,
+        title: 'test-petros',
+        createAt: s.createdAt,
+        visibility: 'private'
+    }))
 
-const listChats = async () => {
-    return Object.keys(sessionStore).map((k: string) => {return {id:k, title: "test", createAt: Date().toString(), visibility: "private"}})
-}
-
-const deleteChat = async (sessionId: string) => {
-    delete sessionStore[sessionId]
-}
+const deleteChat = async (sessionId: string) =>
+    await prisma.session.delete({ where: { id: sessionId } })
 
 export { pullChat, storeChat, listChats, deleteChat }

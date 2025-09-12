@@ -6,10 +6,8 @@ import { listChats, pullChat, storeChat, deleteChat } from './chatStore.js'
 import { simpleRun } from './workflows.js'
 import bodyParser from 'body-parser'
 import multer from 'multer'
-import path from 'node:path'
 import { fileToBase64 } from './utils.js'
 import { UserMessageItem } from '@openai/agents'
-import { fileURLToPath } from 'url';
 
 new Langfuse();
 

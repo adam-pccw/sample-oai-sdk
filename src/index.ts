@@ -5,6 +5,7 @@ import { getConfig, loadConfig } from './config.js'
 import { listChats, pullChat, storeChat, deleteChat } from './chatStore.js'
 import { simpleRun } from './workflows.js'
 import bodyParser from 'body-parser'
+// import multer from 'multer'
 
 new Langfuse();
 
@@ -19,6 +20,7 @@ app.use(bodyParser.text());
 app.use(cors());
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({extended: true}));
+// const upload = multer({ dest: 'uploads/' })
 
 // endpoint declarations
 app.get('/createChat', async (req: express.Request, res: express.Response) => {

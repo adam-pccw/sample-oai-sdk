@@ -48,7 +48,7 @@ const loadConfig = async () => {
     }
 
     configSingleton = {
-        model: process.env['OPENAI_API_MODEL'] ?? 'gemini-2.5-flash',
+        model: process.env['OPENAI_API_MODEL'] ?? 'gemini-2.5-pro',
         port: process.env['PORT'] ?? '3001',
         memory: memoryConfig
     }

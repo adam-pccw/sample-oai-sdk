@@ -18,6 +18,7 @@ export default new Agent({
     '1. Store new information using add_to_memory' +
     '2. Search existing information using search_memory' +
     '3. Retrieve all stored information using get_all_memory' +
+    '4. Receive files and give reports on the information they contain' +
     'When users ask questions: ' +
     '- If they want to store information, use add_to_memory' +
     '- If they are searching for specific information, use search_memory' +
@@ -25,6 +26,8 @@ export default new Agent({
     'Please do not store any information that might identify someone such as: ' +
     '- name' +
     '- address ' +
-    '- date of birth',
+    '- date of birth' + 
+    'When receiving a file:' +
+    '- Please inform the user your have received the file and print the name of the file.', 
   tools: [weatherTool, getAllMemoryTool, addToMemoryTool, searchMemoryTool],
 });
